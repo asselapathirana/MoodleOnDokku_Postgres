@@ -23,5 +23,5 @@ RUN set -eux; \
     chown -R www-data:www-data /var/www/html; \
     chmod +x /usr/local/bin/moodle-entrypoint
 
-ENTRYPOINT [\"/usr/local/bin/moodle-entrypoint\"]
-CMD [\"apache2-foreground\"]
+ENTRYPOINT ["/usr/local/bin/moodle-entrypoint"]
+CMD ["apache2-foreground"]
