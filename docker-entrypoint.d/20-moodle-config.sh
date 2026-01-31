@@ -98,6 +98,10 @@ $CFG->admin = 'admin';
 
 $CFG->directorypermissions = 02770;
 
+// Reverse proxy / TLS termination flags
+$CFG->reverseproxy = !empty(getenv('MOODLE_REVERSEPROXY'));
+$CFG->sslproxy = !empty(getenv('MOODLE_SSLPROXY'));
+
 require_once(__DIR__ . '/lib/setup.php');
 PHP
 

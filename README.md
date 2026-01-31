@@ -45,7 +45,13 @@ dokku storage:mount moodle \
 dokku config:set moodle \
   MOODLE_CONFIG_FROM_ENV=1 \
   WWWROOT=https://lms.srv.pathirana.net \
-  PG_URL=postgresql://moodle_user:xxxxx@10.50.0.1:5435/moodle_db
+  MOODLE_REVERSEPROXY=1 \
+  MOODLE_SSLPROXY=1 \
+  MOODLE_DB_HOST=10.50.0.1 \
+  MOODLE_DB_PORT=5435 \
+  MOODLE_DB_NAME=moodle_db \
+  MOODLE_DB_USER=moodle_user \
+  MOODLE_DB_PASS=xxxxx
 
 # Recommended Moodle setting
 # Moodle expects max_input_vars >= 5000
@@ -57,6 +63,56 @@ dokku config:set moodle PHP_INI_MAX_INPUT_VARS=5000
 2. Restart once so the generated `config.php` is persisted into `moodledata`.
 
 ```bash
+dokku ps:restart moodle
+```
+
+## Manual config.php (one-time)
+If you prefer to avoid env-based generation, create `config.php` manually in the persistent volume.
+You do **not** need to repeat this after each deploy as long as `/var/www/moodledata` is preserved.
+
+```bash
+# Remove any existing config first
+dokku run moodle rm -f /var/www/html/config.php /var/www/moodledata/config.php
+
+# Create config.php in the persistent volume
+dokku run moodle bash -lc 'cat > /var/www/moodledata/config.php <<'"'"'PHP'"'"'
+<?php
+unset($CFG);
+global $CFG;
+$CFG = new stdClass();
+
+$CFG->dbtype = "pgsql";
+$CFG->dblibrary = "native";
+$CFG->dbhost = "10.50.0.1";
+$CFG->dbname = "moodle_db";
+$CFG->dbuser = "moodle_user";
+$CFG->dbpass = "xxxxx";
+$CFG->prefix = "mdl_";
+$CFG->dboptions = array(
+  "dbpersist" => 0,
+  "dbport" => 5435,
+  "dbsocket" => "",
+  "dbcollation" => "utf8",
+  // "sslmode" => "require", // uncomment if needed
+);
+
+$CFG->wwwroot = "https://lms.srv.pathirana.net";
+$CFG->dataroot = "/var/www/moodledata";
+$CFG->admin = "admin";
+$CFG->directorypermissions = 02770;
+
+// Reverse proxy / TLS termination
+$CFG->reverseproxy = true;
+$CFG->sslproxy = true;
+
+require_once(__DIR__ . "/lib/setup.php");
+PHP
+'
+
+# Copy into web root and fix ownership
+dokku run moodle bash -lc 'cp /var/www/moodledata/config.php /var/www/html/config.php && chown www-data:www-data /var/www/html/config.php /var/www/moodledata/config.php'
+
+# Restart
 dokku ps:restart moodle
 ```
 
