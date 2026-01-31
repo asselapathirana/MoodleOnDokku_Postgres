@@ -11,8 +11,9 @@ COPY docker-entrypoint.sh /usr/local/bin/moodle-entrypoint
 
 RUN set -eux; \
     apt-get update; \
-    apt-get install -y --no-install-recommends ca-certificates curl; \
+    apt-get install -y --no-install-recommends ca-certificates curl libpq-dev; \
     rm -rf /var/lib/apt/lists/*; \
+    docker-php-ext-install pdo_pgsql pgsql; \
     curl -fsSL -o /tmp/moodle.tgz \
       "https://download.moodle.org/download.php/direct/stable501/moodle-${MOODLE_VERSION}.tgz"; \
     if [ -n "${MOODLE_SHA256}" ]; then \
