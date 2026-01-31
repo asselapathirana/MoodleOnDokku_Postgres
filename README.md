@@ -49,7 +49,7 @@ dokku config:set moodle \
 
 # Recommended Moodle setting
 # Moodle expects max_input_vars >= 5000
-dokku config:set moodle PHP_INI-max_input_vars=5000
+dokku config:set moodle PHP_INI_MAX_INPUT_VARS=5000
 ```
 
 ## First run
