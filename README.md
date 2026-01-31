@@ -72,3 +72,4 @@ Run Moodle cron every minute. Example cron entry on the Dokku host:
 - To enforce checksum verification, set `MOODLE_SHA256` in `Dockerfile` to the output of:
   `curl -fsSL https://download.moodle.org/download.php/direct/stable501/moodle-5.1.1.tgz | sha256sum`
 - The Apache document root is set to `/var/www/html/public` to match Moodle 5.1+.
+- `PG_URL` is parsed at container start by a small entrypoint wrapper, which exports `MOODLE_DB_*` for Moodle.

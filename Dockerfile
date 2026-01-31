@@ -7,6 +7,7 @@ ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 
 # Add our entrypoint hooks (run by the base image on container start)
 COPY docker-entrypoint.d/ /docker-entrypoint.d/
+COPY docker-entrypoint.sh /usr/local/bin/moodle-entrypoint
 
 RUN set -eux; \
     apt-get update; \
@@ -19,4 +20,8 @@ RUN set -eux; \
     fi; \
     tar -xzf /tmp/moodle.tgz -C /var/www/html --strip-components=1; \
     rm -f /tmp/moodle.tgz; \
-    chown -R www-data:www-data /var/www/html
+    chown -R www-data:www-data /var/www/html; \
+    chmod +x /usr/local/bin/moodle-entrypoint
+
+ENTRYPOINT [\"/usr/local/bin/moodle-entrypoint\"]
+CMD [\"apache2-foreground\"]
