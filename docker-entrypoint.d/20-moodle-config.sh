@@ -39,16 +39,22 @@ if [ -n "${PG_URL:-}" ]; then
       $db = ltrim($parts["path"] ?? "", "/");
       parse_str($parts["query"] ?? "", $query);
       $sslmode = $query["sslmode"] ?? "";
-      echo "MOODLE_DB_HOST=" . $host . "\n";
-      echo "MOODLE_DB_PORT=" . $port . "\n";
-      echo "MOODLE_DB_USER=" . $user . "\n";
-      echo "MOODLE_DB_PASS=" . $pass . "\n";
-      echo "MOODLE_DB_NAME=" . $db . "\n";
+      $pairs = [
+        "MOODLE_DB_HOST" => $host,
+        "MOODLE_DB_PORT" => $port,
+        "MOODLE_DB_USER" => $user,
+        "MOODLE_DB_PASS" => $pass,
+        "MOODLE_DB_NAME" => $db,
+      ];
+      foreach ($pairs as $k => $v) {
+        printf("%s=%s\n", $k, escapeshellarg($v));
+      }
       if ($sslmode !== "") {
-        echo "MOODLE_DB_SSLMODE=" . $sslmode . "\n";
+        printf("MOODLE_DB_SSLMODE=%s\n", escapeshellarg($sslmode));
       }
     '
   )"
+  export MOODLE_DB_HOST MOODLE_DB_PORT MOODLE_DB_USER MOODLE_DB_PASS MOODLE_DB_NAME MOODLE_DB_SSLMODE
 fi
 
 # Restore persisted config if present
